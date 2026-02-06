@@ -1,0 +1,1 @@
+{'detail': [{'loc': ['body', 'job'], 'msg': 'Input should be a valid string'}]}
