@@ -1,0 +1,2 @@
+{'status': 'success'}
+{'nickname': 'aCC6N9b9k12nL2q31te2', 'first_name': 'tGdLhPhOXKR8V9qrNfRZ', 'last_name': 'OxWNN1fqoVCQ5qthnWtH', 'age': 36, 'job': '3wmWFzUnMSjpZ4FIjhfx0vXZobIyee0lyuD5uPBySouleZTlupqrDVaBhwRtvzDvnhmGjnPwOhpAo6xJIV5q9XjJ8t1apvKHVlsz'}

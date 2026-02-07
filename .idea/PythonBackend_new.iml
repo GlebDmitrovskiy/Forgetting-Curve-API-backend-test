@@ -8,6 +8,9 @@
       <sourceFolder url="file://$MODULE_DIR$/services" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/services/forgetting_curve" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/forgetting_curve/information" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/forgetting_curve/users" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/services/forgetting_curve/users/results" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (PythonBackend_new)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

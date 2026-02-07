@@ -1,0 +1,2 @@
+{'status': 'success'}
+[{'id': 1, 'information': 'Zr1fRIdwChC0Bu1', 'explanation': 'epQZgtqz93AJ9l1H7KzJJuv4ZQ3yMp9gKc2vkwu0CK18WC0NZW4tXMUmqESLsWxuVpww2zT1eTBcYuSuBUom1KX8lZNUuYnZj7zp', 'repeat_date_1': '2026-02-07', 'repeat_date_2': '2026-02-08', 'repeat_date_3': '2026-02-11', 'repeat_date_4': '2026-02-22', 'repeat_date_5': '2026-03-09', 'user_nickname': 'WLO3qB6OB9'}]
