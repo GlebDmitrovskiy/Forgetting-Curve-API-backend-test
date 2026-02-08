@@ -23,8 +23,8 @@ class TestInformation(BaseTest):
             response_id = dict_get["id"]
             self.api_information.delete_information(nickname=generated_nickname, information_id=response_id)
 
-    @allure.feature("test_positive_create_information")
-    @allure.step("Позитивная проверка создания информации пользователя")
+    @allure.feature("Добавление информации пользователя")
+    @allure.story("Позитивная проверка создания информации пользователя")
     @pytest.mark.parametrize("allure_title, information, explanation",
                              [("Позитивная проверка создания информации, information 1 символ", text_generator(1),
                                text_generator(100)),
@@ -36,20 +36,29 @@ class TestInformation(BaseTest):
                                text_generator(200))
                               ])
     def test_positive_create_information(self, allure_title, information, explanation):
+        allure.dynamic.title(f"{allure_title}")
         generated_nickname = text_generator(10)
-        data = {"nickname": generated_nickname, "first_name": text_generator(10), "last_name": text_generator(10),
-                "age": digit_generator(50), "job": text_generator(50)}
-        self.api_users.create_users(**data)
-        data_post_information = {"information": information, "explanation": explanation}
-        post_response = self.api_information.create_information(nickname=generated_nickname, **data_post_information)
-        assert post_response.status_code == 200
-        response_get = self.api_information.get_information(nickname=generated_nickname)
-        dict_get = response_get.json()[0]
-        response_id = dict_get["id"]
-        self.api_information.delete_information(nickname=generated_nickname, information_id=response_id)
+        with allure.step(f"Подготовка создания пользователя {generated_nickname}"):
+            data = {"nickname": generated_nickname,
+                    "first_name": text_generator(10),
+                    "last_name": text_generator(10),
+                    "age": digit_generator(50),
+                    "job": text_generator(50)
+                    }
+            self.api_users.create_users(**data)
+        with allure.step("Создание информации у пользователя"):
+            data_post_information = {"information": information, "explanation": explanation}
+            post_response = self.api_information.create_information(nickname=generated_nickname,
+                                                                    **data_post_information)
+            assert post_response.status_code == 200
+        with allure.step(f"Удаление пользователя по id и никнейму:{generated_nickname}"):
+            response_get = self.api_information.get_information(nickname=generated_nickname)
+            dict_get = response_get.json()[0]
+            response_id = dict_get["id"]
+            self.api_information.delete_information(nickname=generated_nickname, information_id=response_id)
 
-    @allure.feature("test_negative_create_information")
-    @allure.step("Негативная проверка создания информации пользователя")
+    @allure.feature("Негативное добавление информации у пользователя")
+    @allure.story("Негативная проверка создания информации пользователя")
     @pytest.mark.parametrize("allure_title, information, explanation",
                              [("Негативная проверка создания информации, information 0 символов", "",
                                text_generator(100)),
@@ -67,39 +76,46 @@ class TestInformation(BaseTest):
                                text_generator(201)),
                               ("Негативная проверка создания информации, explanation число", text_generator(15),
                                digit_generator(200)),
-                              ("Негативная проверка создания информации, explanation число", text_generator(15),
-                               digit_generator(200)),
                               ("Негативная проверка создания информации, explanation float", text_generator(15),
                                14.88),
                               ("Негативная проверка создания информации, explanation bool", text_generator(15),
                                True),
                               ])
-
     def test_negative_create_information(self, allure_title, information, explanation):
+        allure.dynamic.title(f"{allure_title}")
         generated_nickname = text_generator(10)
-        data = {"nickname": generated_nickname, "first_name": text_generator(10), "last_name": text_generator(10),
-                "age": digit_generator(50), "job": text_generator(50)}
-        self.api_users.create_users(**data)
-        data_post_information = {"information": information, "explanation": explanation}
-        post_response = self.api_information.create_information(nickname=generated_nickname, **data_post_information)
-        assert post_response.status_code == 400
+        with allure.step(f"Подготовка к созданию пользователя:{generated_nickname}"):
+            data = {"nickname": generated_nickname, "first_name": text_generator(10), "last_name": text_generator(10),
+                    "age": digit_generator(50), "job": text_generator(50)}
+            self.api_users.create_users(**data)
+        with allure.step(f"Создание информации пользователя:{generated_nickname}"):
+            data_post_information = {"information": information, "explanation": explanation}
+            post_response = self.api_information.create_information(nickname=generated_nickname,
+                                                                    **data_post_information)
+            assert post_response.status_code == 400
 
-    @allure.feature("test_get_information")
-    @allure.step("Проверка получения информации пользователя")
+    @allure.feature("Управление информацией")
+    @allure.story("Получение информации пользователя")
     def test_get_information(self, create_and_delete_information):
-        response = self.api_information.get_information(nickname=create_and_delete_information)
-        print(response.json())
-        assert response.status_code == 200
+        nickname = create_and_delete_information
+        allure.dynamic.title(f"Получение информации пользователя по никнейму:{nickname}")
+        with allure.step(f"Запрос получения информации пользователя:{nickname}"):
+            response = self.api_information.get_information(nickname=nickname)
+            print(response.json())
+            assert response.status_code == 200
 
-    @allure.feature("test_delete_information")
-    @allure.step("Проверка удаления информации пользователя")
+    @allure.feature("Удаление информации")
+    @allure.story("Проверка удаления информации пользователя")
     def test_delete_information(self, create_and_delete_information):
-        response_get = self.api_information.get_information(nickname=create_and_delete_information)
-        dict_get = response_get.json()[0]
-        response_id = dict_get["id"]
-        response_delete = self.api_information.delete_information(nickname=create_and_delete_information,
-                                                                  information_id=response_id)
-        print(response_delete.json())
-        assert response_delete.status_code == 200
-        get_user = self.api_information.get_information(nickname=create_and_delete_information)
-        assert len(get_user.json()) == 0
+        with allure.step("Получение информации у пользователя"):
+            response_get = self.api_information.get_information(nickname=create_and_delete_information)
+        with allure.step("Извлечение id из получения информации для последующего удаления её"):
+            dict_get = response_get.json()[0]
+            response_id = dict_get["id"]
+            response_delete = self.api_information.delete_information(nickname=create_and_delete_information,
+                                                     information_id=response_id)
+            print(response_delete.json())
+            assert response_delete.status_code == 200
+        with allure.step("Проверка что пользователь удалился"):
+            get_user = self.api_information.get_information(nickname=create_and_delete_information)
+            assert len(get_user.json()) == 0

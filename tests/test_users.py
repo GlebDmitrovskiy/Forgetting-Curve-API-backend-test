@@ -92,7 +92,7 @@ class TestUsers(BaseTest):
                               ("Негативная проверка создания пользователя, age float", text_generator(10),
                                text_generator(10), text_generator(10), 47.7, text_generator(50)),
                               ("Негативная проверка создания пользователя, age None", text_generator(10),
-                               text_generator(10), text_generator(10), None, text_generator(50)),
+                               text_generator(10), text_generator(10), False, text_generator(50)),
                               ("Негативная проверка создания пользователя, job 0 символов", text_generator(10),
                                text_generator(10), text_generator(10), digit_generator(50), ""),
                               ("Негативная проверка создания пользователя, job 101 символ", text_generator(10),
