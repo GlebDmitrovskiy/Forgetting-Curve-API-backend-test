@@ -10,14 +10,14 @@ class TestUsers(BaseTest):
     @pytest.fixture
     def create_and_delete_users(self):
         generated_nickname = text_generator(20)
-        response = self.api_users.create_users(nickname=generated_nickname, first_name=text_generator(20),
-                                               last_name=text_generator(20), age=digit_generator(99),
-                                               job=text_generator(100))
-        print(response.json())
+        self.api_users.create_users(nickname=generated_nickname, first_name=text_generator(20),
+                                    last_name=text_generator(20), age=digit_generator(99),
+                                    job=text_generator(100))
         yield generated_nickname
         self.api_users.delete_users_by_nickname(generated_nickname)
 
-    @allure.feature("test_positive_create_user")
+    @allure.feature("Управление пользователем")
+    @allure.story("Позитивная проверка создания пользователя")
     @pytest.mark.parametrize("allure_title, nickname, first_name, last_name, age, job",
                              [("Проверка создания пользователя, nickname 1 символ", text_generator(1),
                                text_generator(10), text_generator(10), digit_generator(50), text_generator(50)),
@@ -43,13 +43,16 @@ class TestUsers(BaseTest):
                               ]
                              )
     def test_positive_create_user(self, allure_title, nickname, first_name, last_name, age, job):
-        data = {"nickname": nickname, "first_name": first_name, "last_name": last_name, "age": age, "job": job}
-        response = self.api_users.create_users(**data)
-        print(response.json())
-        assert response.status_code == 200
-        self.api_users.delete_users_by_nickname(nickname=nickname)
+        allure.dynamic.title(allure_title)
+        with allure.step("Создание пользователя"):
+            data = {"nickname": nickname, "first_name": first_name, "last_name": last_name, "age": age, "job": job}
+            response = self.api_users.create_users(**data)
+            assert response.status_code == 200
+        with allure.step("Удаление пользователя"):
+            self.api_users.delete_users_by_nickname(nickname=nickname)
 
-    @allure.feature("test_negative_create_user")
+    @allure.feature("Управление пользователем")
+    @allure.story("Негативная проверка создания пользователя")
     @pytest.mark.parametrize("allure_title, nickname, first_name, last_name, age, job",
                              [("Негативная проверка создания пользователя, nickname 0 символов", "",
                                text_generator(10), text_generator(10), digit_generator(50), text_generator(50)),
@@ -92,7 +95,7 @@ class TestUsers(BaseTest):
                               ("Негативная проверка создания пользователя, age float", text_generator(10),
                                text_generator(10), text_generator(10), 47.7, text_generator(50)),
                               ("Негативная проверка создания пользователя, age None", text_generator(10),
-                               text_generator(10), text_generator(10), False, text_generator(50)),
+                               text_generator(10), text_generator(10), None, text_generator(50)),
                               ("Негативная проверка создания пользователя, job 0 символов", text_generator(10),
                                text_generator(10), text_generator(10), digit_generator(50), ""),
                               ("Негативная проверка создания пользователя, job 101 символ", text_generator(10),
@@ -106,37 +109,69 @@ class TestUsers(BaseTest):
                               ]
                              )
     def test_negative_create_user(self, allure_title, nickname, first_name, last_name, age, job):
-        data = {"nickname": nickname, "first_name": first_name, "last_name": last_name, "age": age, "job": job}
-        response = self.api_users.create_users(**data)
-        print(response.json())
-        assert response.status_code == 400
-        self.api_users.delete_users_by_nickname(nickname=nickname)
+        allure.dynamic.title(allure_title)
+        with allure.step("Создание пользователя"):
+            data = {"nickname": nickname, "first_name": first_name, "last_name": last_name, "age": age, "job": job}
+            response = self.api_users.create_users(**data)
+            assert response.status_code == 400
+        with allure.step("Удаление пользователя"):
+            self.api_users.delete_users_by_nickname(nickname=nickname)
 
-    @allure.feature("test_get_users")
+    @allure.feature("Управление пользователем")
+    @allure.story("Позитивная проверка получения пользователя")
     def test_get_users(self):
-        response = self.api_users.get_users()
-        print(response.json())
-        assert response.status_code == 200
+        with allure.step("Получение пользователей"):
+            response = self.api_users.get_users()
+            assert response.status_code == 200
 
-    @allure.feature("test_get_users")
-    def test_get_users_by_nickname(self, create_and_delete_users):
-        response = self.api_users.get_users_by_nickname(nickname=create_and_delete_users)
-        print(response.json())
-        assert response.status_code == 200
 
-    @allure.feature("test_delete_users")
-    def test_delete_users(self):
-        generated_nickname = text_generator(20)
-        self.api_users.create_users(nickname=generated_nickname, first_name=text_generator(20),
-                                    last_name=text_generator(20), age=digit_generator(99), job=text_generator(100))
-        response = self.api_users.delete_users_by_nickname(nickname=generated_nickname)
-        print(response.json())
-        assert response.status_code == 200
-        get_users = self.api_users.get_users_by_nickname(nickname=generated_nickname)
-        print(get_users.json())
-        assert get_users.status_code == 404
+    @allure.feature("Управление пользователем")
+    @allure.story("Позитивная проверка получения пользователя")
+    def test_positive_get_users_by_nickname(self, create_and_delete_users):
+        with allure.step("Получение конкретного пользователя по никнейму"):
+            response = self.api_users.get_users_by_nickname(nickname=create_and_delete_users)
+            assert response.status_code == 200
 
-    @allure.feature("put_users")
+    @allure.feature("Управление пользователем")
+    @allure.story("Негативная проверка получения пользователя")
+    @pytest.mark.parametrize("allure_title, nickname", [
+        ("Негативная проверка получения пользователя, никнейм рандомный", text_generator(10))
+    ])
+    def test_negative_get_users_by_nickname(self,  allure_title, nickname):
+        with allure.step("Получение конкретного пользователя по никнейму"):
+            response = self.api_users.get_users_by_nickname(nickname=nickname)
+            print(response.json())
+            assert response.status_code == 404
+
+    @allure.feature("Управление пользователем")
+    @allure.story("Позитивная проверка удаления пользователей")
+    def test_positive_delete_users(self):
+        with allure.step("Создание пользователя для его удаления"):
+            generated_nickname = text_generator(20)
+            self.api_users.create_users(nickname=generated_nickname, first_name=text_generator(20),
+                                        last_name=text_generator(20), age=digit_generator(99), job=text_generator(100))
+        with allure.step("Удаление пользователя"):
+            response = self.api_users.delete_users_by_nickname(nickname=generated_nickname)
+            assert response.status_code == 200
+        with allure.step("Проверка что пользователь удалился"):
+            get_users = self.api_users.get_users_by_nickname(nickname=generated_nickname)
+            assert get_users.status_code == 404
+
+    @allure.feature("Управление пользователем")
+    @allure.story("Негативная проверка удаления пользователя")
+    @pytest.mark.parametrize("allure_title, nickname, status_code",
+                             [("Негативная проверка удаления пользователя, nickname пустой", "", 405),
+                              ("Негативная проверка удаления пользователя, nickname рандомный", text_generator(10), 404)
+
+                              ])
+    def test_negative_delete_users(self, allure_title, nickname, status_code):
+        allure.dynamic.title(allure_title)
+        with allure.step("Проверка что пользователь не нашёлся"):
+            response = self.api_users.delete_users_by_nickname(nickname=nickname)
+            assert response.status_code == status_code
+
+    @allure.feature("Управление пользователем")
+    @allure.story("Позитивная проверка обновления пользователя")
     @pytest.mark.parametrize(
         "allure_title, age, job",
         [
@@ -148,12 +183,14 @@ class TestUsers(BaseTest):
     )
     def test_positive_put_users(self, allure_title, age, job, create_and_delete_users):
         allure.dynamic.title(allure_title)
-        nickname = create_and_delete_users
-        data = {"age": age, "job": job}
-        response = self.api_users.update_users_by_nickname(nickname=nickname, **data)
-        assert response.status_code == 200, response.json()
+        with allure.step("Обновление пользователя"):
+            nickname = create_and_delete_users
+            data = {"age": age, "job": job}
+            response = self.api_users.update_users_by_nickname(nickname=nickname, **data)
+            assert response.status_code == 200, response.json()
 
-    @allure.feature("put_users")
+    @allure.feature("Управление пользователем")
+    @allure.story("Негативная проверка обновления пользователя")
     @pytest.mark.parametrize(
         "allure_title, nickname, age, job, expected_status_code ",
         [
@@ -177,8 +214,10 @@ class TestUsers(BaseTest):
     )
     def test_negative_put_users(self, allure_title, nickname, age, job, create_and_delete_users, expected_status_code):
         allure.dynamic.title(allure_title)
-        if nickname is None:
-            nickname = create_and_delete_users
-        data = {"age": age, "job": job}
-        response = self.api_users.update_users_by_nickname(nickname=nickname, **data)
-        assert response.status_code == expected_status_code, response.json()
+        with allure.step("Проверка никнейма"):
+            if nickname is None:
+                nickname = create_and_delete_users
+        with allure.step("Обновление пользователя"):
+            data = {"age": age, "job": job}
+            response = self.api_users.update_users_by_nickname(nickname=nickname, **data)
+            assert response.status_code == expected_status_code, response.json()

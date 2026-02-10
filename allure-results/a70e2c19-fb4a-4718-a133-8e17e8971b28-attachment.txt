@@ -1,2 +1,0 @@
-{'status': 'success'}
-{'detail': 'User not found'}

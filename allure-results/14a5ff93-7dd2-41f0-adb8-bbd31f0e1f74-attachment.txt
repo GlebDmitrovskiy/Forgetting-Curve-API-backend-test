@@ -1,2 +1,0 @@
-{'status': 'success'}
-[{'id': 1, 'information': 'DNvlJD0eyD41pgI', 'explanation': '5vOk8JqfffHE7tkDAzhbCpB55oVv9y0lAUUpAqenO3bAWkuXICrDdLvOfO3fe7xEBLfCNfLo1EC8V5UlYKhndoHRrtwlAjRK337J', 'repeat_date_1': '2026-02-08', 'repeat_date_2': '2026-02-09', 'repeat_date_3': '2026-02-12', 'repeat_date_4': '2026-02-23', 'repeat_date_5': '2026-03-10', 'user_nickname': 'KlFblXpMlo'}]
