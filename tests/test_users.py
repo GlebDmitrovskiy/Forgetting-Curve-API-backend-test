@@ -1,8 +1,10 @@
 from config.base_test import BaseTest
+from conftest import validation
 from services.text_generator import text_generator
 from services.forgetting_curve.users.digit_generator import digit_generator
 import pytest
 import allure
+from services.forgetting_curve.users.schemas import GetSchema, DeleteUserSchema, PutUserSchema, PostUserSchema
 
 
 class TestUsers(BaseTest):
@@ -42,12 +44,13 @@ class TestUsers(BaseTest):
 
                               ]
                              )
-    def test_positive_create_user(self, allure_title, nickname, first_name, last_name, age, job):
+    def test_positive_create_user(self, allure_title, nickname, first_name, last_name, age, job, validation):
         allure.dynamic.title(allure_title)
         with allure.step("Создание пользователя"):
             data = {"nickname": nickname, "first_name": first_name, "last_name": last_name, "age": age, "job": job}
             response = self.api_users.create_users(**data)
             assert response.status_code == 200
+            assert validation(response.json(), PostUserSchema)
         with allure.step("Удаление пользователя"):
             self.api_users.delete_users_by_nickname(nickname=nickname)
 
@@ -124,20 +127,20 @@ class TestUsers(BaseTest):
             response = self.api_users.get_users()
             assert response.status_code == 200
 
-
     @allure.feature("Управление пользователем")
     @allure.story("Позитивная проверка получения пользователя")
-    def test_positive_get_users_by_nickname(self, create_and_delete_users):
+    def test_positive_get_users_by_nickname(self, create_and_delete_users, validation):
         with allure.step("Получение конкретного пользователя по никнейму"):
             response = self.api_users.get_users_by_nickname(nickname=create_and_delete_users)
             assert response.status_code == 200
+            assert validation(response.json(), GetSchema)
 
     @allure.feature("Управление пользователем")
     @allure.story("Негативная проверка получения пользователя")
     @pytest.mark.parametrize("allure_title, nickname", [
         ("Негативная проверка получения пользователя, никнейм рандомный", text_generator(10))
     ])
-    def test_negative_get_users_by_nickname(self,  allure_title, nickname):
+    def test_negative_get_users_by_nickname(self, allure_title, nickname):
         with allure.step("Получение конкретного пользователя по никнейму"):
             response = self.api_users.get_users_by_nickname(nickname=nickname)
             print(response.json())
@@ -145,7 +148,7 @@ class TestUsers(BaseTest):
 
     @allure.feature("Управление пользователем")
     @allure.story("Позитивная проверка удаления пользователей")
-    def test_positive_delete_users(self):
+    def test_positive_delete_users(self, validation):
         with allure.step("Создание пользователя для его удаления"):
             generated_nickname = text_generator(20)
             self.api_users.create_users(nickname=generated_nickname, first_name=text_generator(20),
@@ -153,6 +156,7 @@ class TestUsers(BaseTest):
         with allure.step("Удаление пользователя"):
             response = self.api_users.delete_users_by_nickname(nickname=generated_nickname)
             assert response.status_code == 200
+            assert validation(response.json(), DeleteUserSchema)
         with allure.step("Проверка что пользователь удалился"):
             get_users = self.api_users.get_users_by_nickname(nickname=generated_nickname)
             assert get_users.status_code == 404
@@ -181,13 +185,14 @@ class TestUsers(BaseTest):
             ("Проверка обновления данных о пользователе, job 100 символов", 50, text_generator(100))
         ]
     )
-    def test_positive_put_users(self, allure_title, age, job, create_and_delete_users):
+    def test_positive_put_users(self, allure_title, age, job, create_and_delete_users, validation):
         allure.dynamic.title(allure_title)
         with allure.step("Обновление пользователя"):
             nickname = create_and_delete_users
             data = {"age": age, "job": job}
             response = self.api_users.update_users_by_nickname(nickname=nickname, **data)
             assert response.status_code == 200, response.json()
+            assert validation(response.json(), PutUserSchema)
 
     @allure.feature("Управление пользователем")
     @allure.story("Негативная проверка обновления пользователя")
